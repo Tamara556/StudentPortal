@@ -34,8 +34,7 @@ public class StudentServise {
     public List<Student> getAllStudents() {
         String sql = "SELECT * FROM student";
         List<Student> students = new ArrayList<>();
-        try {
-            Statement statement = connection.createStatement();
+            try(Statement statement = connection.createStatement()){
             ResultSet resultSet = statement.executeQuery(sql);
             while (resultSet.next()) {
                 Student student = Student.builder()
@@ -52,6 +51,26 @@ public class StudentServise {
             e.printStackTrace();
         }
         return students;
+    }
+
+    public Student getStudentById(int id) {
+        String sql = "SELECT * FROM student WHERE id = " + id;
+        try (Statement statement = connection.createStatement()) {
+            ResultSet resultSet = statement.executeQuery(sql);
+            if (resultSet.next()) {
+                return Student.builder()
+                        .id(resultSet.getInt("id"))
+                        .name(resultSet.getString("name"))
+                        .surname(resultSet.getString("surname"))
+                        .email(resultSet.getString("email"))
+                        .phone(resultSet.getString("phone"))
+                        .lesson(lessonService.getLessonById(resultSet.getInt("lesson_id")))
+                        .build();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
 
