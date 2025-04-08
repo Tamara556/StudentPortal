@@ -12,7 +12,7 @@ public class LessonService {
     private Connection connection = DBConnectionProvider.getInstance().getConnection();
 
     public void add(Lesson lesson) {
-        String sql = "INSERT INTO lesson(name,lecturerName,price) VALUES(?,?,?)";
+        String sql = "INSERT INTO lesson(name,lecturer_name,price) VALUES(?,?,?)";
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             preparedStatement.setString(1, lesson.getName());
@@ -50,23 +50,23 @@ public class LessonService {
     }
 
     public Lesson getLessonById(int id) {
-        String sql = "SELECT * FROM lesson WHERE id" + id;
-
-        try (Statement statement = connection.createStatement()) {
-            ResultSet resultSet = statement.executeQuery(sql);
+        String sql = "SELECT * FROM lesson WHERE id = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, id);
+            ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
-                Lesson lesson = Lesson.builder()
+                return Lesson.builder()
                         .id(resultSet.getInt("id"))
                         .name(resultSet.getString("name"))
                         .price(resultSet.getDouble("price"))
                         .lecturerName(resultSet.getString("lecturer_name"))
                         .build();
-                return lesson;
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return null;
     }
+
 
 }
